@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+javafx {
+    version = "19"
+    modules = [ 'javafx.controls' ]
+}
+application{
+    mainClass="org.example.Main"
+}
+repositories {
+    mavenCentral()
+}
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources"]
+        }
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.example.Main'
+    }
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:11.2.0.jre8'
+    implementation "org.mindrot:jbcrypt:0.4"
+    implementation group: 'com.intellij', name: 'forms_rt', version: '7.0.3'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
