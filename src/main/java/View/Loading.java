@@ -79,6 +79,8 @@ public class Loading extends javax.swing.JFrame {
             protected void done() {
                 if (jProgressBar1.getValue() == 100) {
                     JOptionPane.showMessageDialog(MainPanel, "Initialization Complete!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                    Login.RUN();
                 } else if (jProgressBar1.getValue() == -1) {
                     JOptionPane.showMessageDialog(MainPanel, "An Error Occurred.. Terminating Program", "Failed", JOptionPane.ERROR_MESSAGE);
                     dispose();
@@ -123,32 +125,6 @@ public class Loading extends javax.swing.JFrame {
         pack();
     }
 
-
-    public static void main(String args[]) {
-
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Loading.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Loading.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Loading.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Loading.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Loading().setVisible(true);
-            }
-        });
-    }
 
     private javax.swing.JPanel MainPanel;
     private javax.swing.JLabel img;
