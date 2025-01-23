@@ -1,13 +1,12 @@
 package org.example;
 
-import Controller.DBConnect;
+import Controller.LoginController;
+import Model.LoginModel;
 import View.Loading;
-
-import java.sql.Connection;
+import View.Login;
 
 public class Main{
     public static void main(String[] args) {
         new Loading().RUN();
-//        Connection x = DBConnect.getInstance();
     }
 }

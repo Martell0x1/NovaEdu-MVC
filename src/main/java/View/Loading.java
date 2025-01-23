@@ -1,10 +1,13 @@
 package View;
 
+import Controller.LoginController;
+import Model.DatabaseConnect;
+import Model.LoginModel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
-
-import Controller.DBConnect;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -21,43 +24,38 @@ public class Loading extends javax.swing.JFrame {
     }
 
     public void startProgress() {
+        AtomicBoolean isConnected = new AtomicBoolean(false);
         SwingWorker<Void, Integer> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
                 long startTime = System.currentTimeMillis();
+                boolean isConnected = false;
 
                 // Create a new thread for the database connection attempt
-                Thread connectionThread = new Thread(() -> {
-                    boolean isConnected = false;
-                    while (System.currentTimeMillis() - startTime < 10000) { // Try for 10 seconds
-                        try {
-                            connection = DBConnect.getInstance();
-                            if (connection != null) {
-                                isConnected = true;
-                                publish(100); // Set progress to 100 if connected
-                                break;
-                            }
-                            // Sleep to avoid blocking the UI while trying to connect
-                            Thread.sleep(500);
+                while (System.currentTimeMillis() - startTime < 10000 && !isConnected) {
+                    try {
+                        // Attempt the database connection
+                        connection = DatabaseConnect.getConnection();
+
+                        if (connection != null) {
+                            isConnected = true;
+                            publish(100); // Set progress to 100 if connected
+                        } else {
+                            // Update progress as long as connection is being attempted
                             int progress = (int) ((System.currentTimeMillis() - startTime) / 100.0);
-                            publish(progress); // Update progress bar based on elapsed time
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            publish(progress); // Update progress bar
                         }
+
+                        // Sleep to avoid blocking the UI while trying to connect
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                }
 
-                    if (!isConnected) {
-                        publish(-1); // Indicate failure in progress bar
-                    }
-                });
-
-                // Start the connection thread
-                connectionThread.start();
-
-                try {
-                    connectionThread.join(); // Wait for the connection thread to finish
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                // Indicate failure if connection couldn't be established
+                if (!isConnected) {
+                    publish(-1);
                 }
 
                 return null;
@@ -67,22 +65,37 @@ public class Loading extends javax.swing.JFrame {
             protected void process(java.util.List<Integer> chunks) {
                 for (int value : chunks) {
                     if (value == -1) {
+                        // Timeout or error case
                         JOptionPane.showMessageDialog(MainPanel, "Database Connection Timeout", "Error", JOptionPane.ERROR_MESSAGE);
                         dispose();
                     } else {
+                        // Update the progress bar on the UI
                         jProgressBar1.setValue(value);
                     }
                 }
             }
 
+
             @Override
             protected void done() {
-                if (jProgressBar1.getValue() == 100) {
-                    JOptionPane.showMessageDialog(MainPanel, "Initialization Complete!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
-                    Login.RUN();
-                } else if (jProgressBar1.getValue() == -1) {
-                    JOptionPane.showMessageDialog(MainPanel, "An Error Occurred.. Terminating Program", "Failed", JOptionPane.ERROR_MESSAGE);
+                // Once done, check if connected
+                try {
+                    if (connection != null && jProgressBar1.getValue() == 100) {
+                        JOptionPane.showMessageDialog(MainPanel, "Initialization Complete!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                        dispose();
+                        Login login = new Login();
+                        LoginModel modle = new LoginModel();
+                        new LoginController(login,modle);
+                        login.setVisible(true);
+
+                    } else {
+                        // Connection failed
+                        JOptionPane.showMessageDialog(MainPanel, "Cannot Connect to database ..", "Failed", JOptionPane.ERROR_MESSAGE);
+                        dispose();
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(MainPanel, "Error during database connection.", "Error", JOptionPane.ERROR_MESSAGE);
                     dispose();
                 }
             }

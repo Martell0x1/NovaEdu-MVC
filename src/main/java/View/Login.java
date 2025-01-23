@@ -4,12 +4,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-
+import javax.swing.*;
 
 
 /**
@@ -211,15 +209,25 @@ public class Login extends javax.swing.JFrame {
         pack();
     }// </editor-fold>
 
-
-    public static void RUN(){
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Login().setVisible(true);
-            }
-        });
+    public String getEmail() {
+        return textField.getText();
     }
-    // Variables declaration - do not modify
+
+    public String getPassword() {
+        return new String(passwordField.getPassword());
+    }
+
+    public void noticeErrors(String errors) {
+        JOptionPane.showMessageDialog(this, errors, "Validation Errors", JOptionPane.ERROR_MESSAGE);
+    }
+    public void noticeSuccess(String msg){
+        JOptionPane.showMessageDialog(this, msg, "Validation Errors", JOptionPane.INFORMATION_MESSAGE);
+
+    }
+
+    public void addLoginListener(ActionListener listener) {
+        loginButton.addActionListener(listener);
+    }
     private javax.swing.JButton forgotPasswordButton;
     private javax.swing.JButton github;
     private javax.swing.JButton google;
